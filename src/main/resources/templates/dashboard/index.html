@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Dashboard')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container">
+
+    <!-- Summary cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="text-muted">Locations</h5>
+                    <div class="display-5 fw-bold" th:text="${summary.totalLocations}">3</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="text-muted">Devices</h5>
+                    <div class="display-5 fw-bold" th:text="${summary.totalDevices}">7</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="text-muted">Active Alerts</h5>
+                    <div class="display-5 fw-bold"
+                         th:classappend="${summary.unacknowledgedAlerts > 0 ? 'text-danger' : 'text-success'}"
+                         th:text="${summary.unacknowledgedAlerts}">0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Location cards -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">Locations</h4>
+        <a th:href="@{/locations/new}" class="btn btn-primary btn-sm">+ Add Location</a>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-4" th:each="loc : ${summary.locations}">
+            <a th:href="@{/locations/{id}(id=${loc.id})}" class="text-decoration-none">
+                <div class="card h-100 location-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <h5 class="card-title mb-1" th:text="${loc.name}">Office</h5>
+                            <span th:replace="~{fragments/components :: ratingBadge(${loc.overallRating})}"></span>
+                        </div>
+                        <p class="text-muted small mb-2" th:text="${loc.address ?: 'No address'}">Address</p>
+                        <div class="d-flex gap-3 text-muted small">
+                            <span>
+                                <strong th:text="${loc.deviceCount}">3</strong> devices
+                            </span>
+                            <span>
+                                <strong th:text="${loc.floors}">2</strong> floors
+                            </span>
+                            <span th:text="${loc.buildingType.name().toLowerCase().capitalize()}">Office</span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Recent alerts -->
+    <div th:if="${!summary.recentAlerts.isEmpty()}">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="mb-0">Recent Alerts</h4>
+            <a th:href="@{/alerts}" class="btn btn-outline-secondary btn-sm">View All</a>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Sensor</th><th>Device</th><th>Room</th><th>Value</th><th>Time</th><th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="alert : ${summary.recentAlerts}" th:replace="~{fragments/components :: alertRow(${alert})}"></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

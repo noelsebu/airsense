@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!-- Single sensor reading card -->
+<div th:fragment="sensorCard(reading)" class="col">
+    <div class="card h-100 sensor-card">
+        <div class="card-body text-center">
+            <h6 class="card-subtitle mb-2 text-muted" th:text="${reading.sensorType.displayName}">CO₂</h6>
+            <div class="display-6 fw-bold" th:text="${#numbers.formatDecimal(reading.value, 0, 1)}">450</div>
+            <small class="text-muted" th:text="${reading.unit}">ppm</small>
+            <div class="mt-2">
+                <span class="badge" th:classappend="${reading.rating.cssClass}" th:text="${reading.rating.label}">Good</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Overall status badge -->
+<span th:fragment="ratingBadge(rating)"
+      class="badge"
+      th:classappend="${rating.cssClass}"
+      th:text="${rating.label}">Good</span>
+
+<!-- Alert row -->
+<tr th:fragment="alertRow(alert)">
+    <td>
+        <span class="badge" th:classappend="${alert.acknowledged ? 'text-bg-secondary' : 'text-bg-danger'}">
+            <span th:if="${!alert.acknowledged}">&#9679;</span>
+            <span th:text="${alert.sensorType.displayName}">CO₂</span>
+        </span>
+    </td>
+    <td th:text="${alert.deviceSerial}">SN-001</td>
+    <td th:text="${alert.roomName ?: 'N/A'}">Room</td>
+    <td>
+        <span th:text="${#numbers.formatDecimal(alert.triggeredValue, 0, 1)}">1200</span>
+        <small class="text-muted" th:text="${alert.sensorType.unit}">ppm</small>
+        <small class="text-muted"> / threshold </small>
+        <span th:text="${#numbers.formatDecimal(alert.threshold, 0, 1)}">1000</span>
+    </td>
+    <td>
+        <span th:text="${#temporals.format(alert.triggeredAt, 'MMM dd HH:mm')}">Jan 01 12:00</span>
+    </td>
+    <td>
+        <form th:unless="${alert.acknowledged}" th:action="@{/alerts/{id}/acknowledge(id=${alert.id})}" method="post" class="d-inline">
+            <button type="submit" class="btn btn-sm btn-outline-success">Ack</button>
+        </form>
+        <span th:if="${alert.acknowledged}" class="text-muted small">Acknowledged</span>
+    </td>
+</tr>
+
+</html>

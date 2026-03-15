@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!-- Reusable head fragment -->
+<head th:fragment="head(title)">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title th:text="${title} + ' — AirSense'">AirSense</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/css/airsense.css}"/>
+</head>
+
+<!-- Navbar fragment -->
+<nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center gap-2" th:href="@{/}">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                <circle cx="14" cy="14" r="13" stroke="#6ee7b7" stroke-width="2"/>
+                <circle cx="14" cy="14" r="7" fill="#6ee7b7" opacity="0.3"/>
+                <circle cx="14" cy="14" r="3" fill="#6ee7b7"/>
+            </svg>
+            <span>AirSense</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navMain">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/}">Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/alerts}">Alerts</a>
+                </li>
+            </ul>
+            <span class="navbar-text text-muted small">
+                Simulated IAQ Monitoring
+            </span>
+        </div>
+    </div>
+</nav>
+
+<!-- Footer fragment -->
+<footer th:fragment="footer" class="mt-5 py-3 text-center text-muted border-top">
+    <div class="container">
+        <small>AirSense — Indoor Air Quality Monitor &middot; Side Project inspired by Airthings</small>
+    </div>
+</footer>
+
+<!-- Scripts fragment -->
+<div th:fragment="scripts">
+    <script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
+    <script th:src="@{/webjars/htmx.org/dist/htmx.min.js}"></script>
+</div>
+
+</html>

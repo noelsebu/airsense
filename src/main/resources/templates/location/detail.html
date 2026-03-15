@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head(${location.name})}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container">
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/}">Dashboard</a></li>
+            <li class="breadcrumb-item active" th:text="${location.name}">Location</li>
+        </ol>
+    </nav>
+
+    <!-- Location header -->
+    <div class="d-flex justify-content-between align-items-start mb-4">
+        <div>
+            <h2 class="mb-1">
+                <span th:text="${location.name}">Stavanger HQ</span>
+                <span th:replace="~{fragments/components :: ratingBadge(${location.overallRating})}"></span>
+            </h2>
+            <p class="text-muted mb-0" th:text="${location.address ?: 'No address'}">Address</p>
+            <div class="d-flex gap-3 text-muted small mt-1">
+                <span th:text="'Type: ' + ${location.buildingType}">Type: OFFICE</span>
+                <span th:text="'Ventilation: ' + ${location.ventilationType}">Ventilation: MECHANICAL</span>
+                <span th:text="'Floors: ' + ${location.floors}">Floors: 3</span>
+            </div>
+        </div>
+        <div class="d-flex gap-2">
+            <a th:href="@{/locations/{id}/edit(id=${location.id})}" class="btn btn-outline-secondary btn-sm">Edit</a>
+            <form th:action="@{/locations/{id}/delete(id=${location.id})}" method="post"
+                  onsubmit="return confirm('Delete this location and all its devices?')">
+                <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Devices -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">Devices (<span th:text="${#lists.size(devices)}">3</span>)</h4>
+        <a th:href="@{/devices/new(locationId=${location.id})}" class="btn btn-primary btn-sm">+ Add Device</a>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-6" th:each="device : ${devices}">
+            <a th:href="@{/devices/{id}(id=${device.id})}" class="text-decoration-none">
+                <div class="card h-100 device-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <h5 class="card-title mb-0" th:text="${device.roomName ?: device.serialNumber}">Open Office</h5>
+                                <small class="text-muted" th:text="${device.deviceType.displayName + ' · ' + device.serialNumber}">View Plus · SN-001</small>
+                            </div>
+                            <span th:if="${device.latestSample != null}"
+                                  th:replace="~{fragments/components :: ratingBadge(${device.latestSample.overallRating})}"></span>
+                            <span th:if="${device.latestSample == null}" class="badge text-bg-secondary">No data</span>
+                        </div>
+
+                        <!-- Mini sensor readings -->
+                        <div th:if="${device.latestSample != null}" class="row g-2 mt-2">
+                            <div class="col-4" th:each="reading : ${device.latestSample.readings}" th:if="${#lists.size(device.latestSample.readings) <= 6}">
+                                <div class="text-center p-1 rounded mini-reading"
+                                     th:classappend="${reading.rating.name() == 'POOR' ? 'bg-danger-subtle' : (reading.rating.name() == 'FAIR' ? 'bg-warning-subtle' : '')}">
+                                    <div class="small text-muted" th:text="${reading.sensorType.displayName}">CO₂</div>
+                                    <div class="fw-bold" th:text="${#numbers.formatDecimal(reading.value, 0, 0)}">450</div>
+                                    <div class="small text-muted" th:text="${reading.unit}">ppm</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-2 small text-muted">
+                            <span>Battery: <span th:text="${device.batteryLevel + '%'}">95%</span></span>
+                            <span>Floor <span th:text="${device.floor}">1</span></span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Unacknowledged alerts for this location -->
+    <div th:if="${!alerts.isEmpty()}">
+        <h4 class="mb-3">Active Alerts</h4>
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead><tr><th>Sensor</th><th>Device</th><th>Room</th><th>Value</th><th>Time</th><th></th></tr></thead>
+                <tbody>
+                    <tr th:each="alert : ${alerts}" th:replace="~{fragments/components :: alertRow(${alert})}"></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>
