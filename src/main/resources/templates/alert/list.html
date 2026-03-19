@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Alerts')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container">
+
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/}">Dashboard</a></li>
+            <li class="breadcrumb-item active">Alerts</li>
+        </ol>
+    </nav>
+
+    <h2 class="mb-4">Alerts</h2>
+
+    <div th:if="${alerts.isEmpty()}" class="text-center text-muted py-5">
+        <h5>No alerts yet</h5>
+        <p>Alerts will appear here when sensor readings exceed configured thresholds.</p>
+    </div>
+
+    <div th:if="${!alerts.isEmpty()}" class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>Status</th>
+                <th>Sensor</th>
+                <th>Device</th>
+                <th>Room</th>
+                <th>Value / Threshold</th>
+                <th>Triggered</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="alert : ${alerts}"
+                th:classappend="${!alert.acknowledged ? 'table-danger' : ''}">
+                <td>
+                    <span th:if="${!alert.acknowledged}" class="badge text-bg-danger">Active</span>
+                    <span th:if="${alert.acknowledged}" class="badge text-bg-secondary">Ack'd</span>
+                </td>
+                <td th:text="${alert.sensorType.displayName}">CO₂</td>
+                <td th:text="${alert.deviceSerial}">SN-001</td>
+                <td th:text="${alert.roomName ?: 'N/A'}">Room</td>
+                <td>
+                    <span class="fw-bold" th:text="${#numbers.formatDecimal(alert.triggeredValue, 0, 1)}">1200</span>
+                    <small class="text-muted" th:text="${alert.sensorType.unit}">ppm</small>
+                    <small class="text-muted"> / </small>
+                    <span th:text="${#numbers.formatDecimal(alert.threshold, 0, 1)}">1000</span>
+                </td>
+                <td>
+                    <span th:text="${#temporals.format(alert.triggeredAt, 'MMM dd HH:mm')}">Jan 01 12:00</span>
+                </td>
+                <td class="text-end">
+                    <form th:unless="${alert.acknowledged}"
+                          th:action="@{/alerts/{id}/acknowledge(id=${alert.id})}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-outline-success">Acknowledge</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

@@ -37,7 +37,7 @@ class DashboardController(
     fun locationDetail(@PathVariable id: UUID, model: Model): String {
         model.addAttribute("location", locationService.findByIdAsDto(id))
         model.addAttribute("devices", deviceService.findByLocationId(id))
-        model.addAttribute("alerts", alertService.getUnacknowledgedByLocation(id))
+        model.addAttribute("alerts", alertService.getUnacknowledgedForLocation(id))
         return "location/detail"
     }
 
@@ -91,8 +91,8 @@ class DashboardController(
         model.addAttribute("history", sampleService.getHistory(id, 24))
         model.addAttribute("avg24h", sampleService.getAverages(id, 24))
         model.addAttribute("avg7d", sampleService.getAverages(id, 168))
-        model.addAttribute("alerts", alertService.getAlertsByDevice(id))
-        model.addAttribute("alertRules", alertService.getRulesByDevice(id))
+        model.addAttribute("alerts", alertService.getAlertsForDevice(id))
+        model.addAttribute("alertRules", alertService.getRulesForDevice(id))
         model.addAttribute("sensorTypes", deviceService.findById(id).supportedSensors)
         return "device/detail"
     }
@@ -129,14 +129,14 @@ class DashboardController(
 
     @PostMapping("/alerts/{id}/acknowledge")
     fun acknowledgeAlert(@PathVariable id: UUID, @RequestHeader(value = "Referer", required = false) referer: String?): String {
-        alertService.acknowledge(id)
+        alertService.acknowledgeAlert(id)
         return "redirect:${referer ?: "/alerts"}"
     }
 
     @PostMapping("/devices/{deviceId}/alert-rules")
     fun createAlertRule(@PathVariable deviceId: UUID, @ModelAttribute form: AlertRuleFormDto): String {
-        val device = deviceService.findById(deviceId)
-        alertService.createRule(form, device)
+        form.deviceId = deviceId
+        alertService.createRule(form)
         return "redirect:/devices/$deviceId"
     }
 

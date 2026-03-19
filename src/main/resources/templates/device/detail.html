@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head(${device.roomName ?: device.serialNumber})}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container">
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/}">Dashboard</a></li>
+            <li class="breadcrumb-item active" th:text="${device.roomName ?: device.serialNumber}">Device</li>
+        </ol>
+    </nav>
+
+    <!-- Device header -->
+    <div class="d-flex justify-content-between align-items-start mb-4">
+        <div>
+            <h2 class="mb-1">
+                <span th:text="${device.roomName ?: device.serialNumber}">Open Office</span>
+                <span th:if="${device.latestSample != null}"
+                      th:replace="~{fragments/components :: ratingBadge(${device.latestSample.overallRating})}"></span>
+                <span th:if="${device.latestSample == null}" class="badge text-bg-secondary">No data</span>
+            </h2>
+            <div class="d-flex gap-3 text-muted small">
+                <span th:text="${device.deviceType.displayName}">View Plus</span>
+                <span th:text="'SN: ' + ${device.serialNumber}">SN-001</span>
+                <span th:text="'Floor ' + ${device.floor}">Floor 1</span>
+                <span>Battery: <span th:text="${device.batteryLevel + '%'}">95%</span></span>
+            </div>
+        </div>
+        <form th:action="@{/devices/{id}/delete(id=${device.id})}" method="post"
+              onsubmit="return confirm('Delete this device and all its data?')">
+            <button type="submit" class="btn btn-outline-danger btn-sm">Delete Device</button>
+        </form>
+    </div>
+
+    <!-- Current sensor readings -->
+    <div th:if="${device.latestSample != null}">
+        <h4 class="mb-3">Current Readings</h4>
+        <div class="row row-cols-2 row-cols-md-4 g-3 mb-4">
+            <div th:each="reading : ${device.latestSample.readings}"
+                 th:replace="~{fragments/components :: sensorCard(${reading})}"></div>
+        </div>
+    </div>
+
+    <!-- Averages -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">24-Hour Averages</div>
+                <div class="card-body">
+                    <table class="table table-sm mb-0">
+                        <tbody>
+                        <tr th:if="${avg24h.radon != null}">
+                            <td>Radon</td>
+                            <td class="text-end" th:text="${#numbers.formatDecimal(avg24h.radon, 0, 1) + ' Bq/m³'}"></td>
+                        </tr>
+                        <tr th:if="${avg24h.co2 != null}">
+                            <td>CO₂</td>
+                            <td class="text-end" th:text="${#numbers.formatDecimal(avg24h.co2, 0, 0) + ' ppm'}"></td>
+                        </tr>
+                        <tr th:if="${avg24h.voc != null}">
+                            <td>VOC</td>
+                            <td class="text-end" th:text="${#numbers.formatDecimal(avg24h.voc, 0, 0) + ' ppb'}"></td>
+                        </tr>
+                        <tr th:if="${avg24h.pm25 != null}">
+                            <td>PM2.5</td>
+                            <td class="text-end" th:text="${#numbers.formatDecimal(avg24h.pm25, 0, 1) + ' µg/m³'}"></td>
+                        </tr>
+                        <tr th:if="${avg24h.temperature != null}">
+                            <td>Temperature</td>
+                            <td class="text-end" th:text="${#numbers.formatDecimal(avg24h.temperature, 0, 1) + ' °C'}"></td>
+                        </tr>
+                        <tr th:if="${avg24h.humidity != null}">
+                            <td>Humidity</td>
+                            <td class="text-end" th:text="${#numbers.formatDecimal(avg24h.humidity, 0, 1) + ' %'}"></td>
+                        </tr>
+                        <tr th:if="${avg24h.pressure != null}">
+                            <td>Pressure</td>
+                            <td class="text-end" th:text="${#numbers.formatDecimal(avg24h.pressure, 0, 1) + ' hPa'}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">7-Day Averages</div>
+                <div class="card-body">
+                    <table class="table table-sm mb-0">
+                        <tbody>
+                        <tr th:if="${avg7d.radon != null}">
+                            <td>Radon</td>
+                            <td class="text-end" th:text="${#numbers.formatDecimal(avg7d.radon, 0, 1) + ' Bq/m³'}"></td>
+                        </tr>
+                        <tr th:if="${avg7d.co2 != null}">
+                            <td>CO₂</td>
+                            <td class="text-end" th:text="${#numbers.formatDecimal(avg7d.co2, 0, 0) + ' ppm'}"></td>
+                        </tr>
+                        <tr th:if="${avg7d.voc != null}">
+                            <td>VOC</td>
+                            <td class="text-end" th:text="${#numbers.formatDecimal(avg7d.voc, 0, 0) + ' ppb'}"></td>
+                        </tr>
+                        <tr th:if="${avg7d.pm25 != null}">
+                            <td>PM2.5</td>
+                            <td class="text-end" th:text="${#numbers.formatDecimal(avg7d.pm25, 0, 1) + ' µg/m³'}"></td>
+                        </tr>
+                        <tr th:if="${avg7d.temperature != null}">
+                            <td>Temperature</td>
+                            <td class="text-end" th:text="${#numbers.formatDecimal(avg7d.temperature, 0, 1) + ' °C'}"></td>
+                        </tr>
+                        <tr th:if="${avg7d.humidity != null}">
+                            <td>Humidity</td>
+                            <td class="text-end" th:text="${#numbers.formatDecimal(avg7d.humidity, 0, 1) + ' %'}"></td>
+                        </tr>
+                        <tr th:if="${avg7d.pressure != null}">
+                            <td>Pressure</td>
+                            <td class="text-end" th:text="${#numbers.formatDecimal(avg7d.pressure, 0, 1) + ' hPa'}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart.js sensor history graphs -->
+    <h4 class="mb-3">24-Hour History</h4>
+    <div class="row g-3 mb-4">
+        <div th:each="sensor : ${sensorTypes}" class="col-md-6">
+            <div class="card">
+                <div class="card-header" th:text="${sensor.displayName}">CO₂</div>
+                <div class="card-body">
+                    <canvas th:id="'chart-' + ${sensor.name()}" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Rules -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">Alert Rules</h4>
+    </div>
+
+    <!-- Add rule form -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <form th:action="@{/devices/{id}/alert-rules(id=${device.id})}" method="post" class="row g-2 align-items-end">
+                <div class="col-auto">
+                    <label class="form-label small" for="sensorType">Sensor</label>
+                    <select class="form-select form-select-sm" id="sensorType" name="sensorType">
+                        <option th:each="sensor : ${sensorTypes}" th:value="${sensor}" th:text="${sensor.displayName}">CO₂</option>
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <label class="form-label small" for="threshold">Threshold</label>
+                    <input type="number" step="0.1" class="form-control form-control-sm" id="threshold" name="threshold" value="1000"/>
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary btn-sm">Add Rule</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Existing rules -->
+    <div th:if="${!alertRules.isEmpty()}" class="table-responsive mb-4">
+        <table class="table table-sm">
+            <thead>
+            <tr><th>Sensor</th><th>Threshold</th><th>Status</th><th></th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="rule : ${alertRules}">
+                <td th:text="${rule.sensorType.displayName}">CO₂</td>
+                <td>
+                    <span th:text="${#numbers.formatDecimal(rule.threshold, 0, 1)}">1000</span>
+                    <small class="text-muted" th:text="${rule.sensorType.unit}">ppm</small>
+                </td>
+                <td>
+                    <span class="badge" th:classappend="${rule.enabled ? 'text-bg-success' : 'text-bg-secondary'}"
+                          th:text="${rule.enabled ? 'Active' : 'Disabled'}">Active</span>
+                </td>
+                <td class="text-end">
+                    <form th:action="@{/alert-rules/{id}/toggle(id=${rule.id})}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-outline-secondary"
+                                th:text="${rule.enabled ? 'Disable' : 'Enable'}">Toggle</button>
+                    </form>
+                    <form th:action="@{/alert-rules/{id}/delete(id=${rule.id})}" method="post" class="d-inline"
+                          onsubmit="return confirm('Delete this alert rule?')">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Recent alerts for this device -->
+    <div th:if="${!alerts.isEmpty()}">
+        <h4 class="mb-3">Recent Alerts</h4>
+        <div class="table-responsive mb-4">
+            <table class="table table-sm">
+                <thead>
+                <tr><th>Sensor</th><th>Device</th><th>Room</th><th>Value</th><th>Time</th><th></th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="alert : ${alerts}" th:replace="~{fragments/components :: alertRow(${alert})}"></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+
+<!-- Chart.js -->
+<script th:src="@{/webjars/chart.js/dist/chart.umd.js}"></script>
+<script th:inline="javascript">
+    const history = /*[[${history}]]*/ [];
+    const sensorTypes = /*[[${sensorTypes}]]*/ [];
+
+    const sensorColors = {
+        'RADON': { border: '#8b5cf6', bg: 'rgba(139,92,246,0.1)' },
+        'CO2': { border: '#f59e0b', bg: 'rgba(245,158,11,0.1)' },
+        'VOC': { border: '#ef4444', bg: 'rgba(239,68,68,0.1)' },
+        'PM25': { border: '#6366f1', bg: 'rgba(99,102,241,0.1)' },
+        'TEMPERATURE': { border: '#10b981', bg: 'rgba(16,185,129,0.1)' },
+        'HUMIDITY': { border: '#06b6d4', bg: 'rgba(6,182,212,0.1)' },
+        'PRESSURE': { border: '#64748b', bg: 'rgba(100,116,139,0.1)' }
+    };
+
+    const sensorFieldMap = {
+        'RADON': 'radon', 'CO2': 'co2', 'VOC': 'voc', 'PM25': 'pm25',
+        'TEMPERATURE': 'temperature', 'HUMIDITY': 'humidity', 'PRESSURE': 'pressure'
+    };
+
+    sensorTypes.forEach(function(sensor) {
+        const canvas = document.getElementById('chart-' + sensor);
+        if (!canvas) return;
+
+        const fieldName = sensorFieldMap[sensor] || sensor.toLowerCase();
+        const labels = [];
+        const values = [];
+
+        history.forEach(function(sample) {
+            const date = new Date(sample.recordedAt);
+            labels.push(date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+            // Extract value from readings array
+            let val = null;
+            if (sample.readings) {
+                for (let i = 0; i < sample.readings.length; i++) {
+                    if (sample.readings[i].sensorType === sensor) {
+                        val = sample.readings[i].value;
+                        break;
+                    }
+                }
+            }
+            values.push(val);
+        });
+
+        const colors = sensorColors[sensor] || { border: '#6b7280', bg: 'rgba(107,114,128,0.1)' };
+
+        new Chart(canvas, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: values,
+                    borderColor: colors.border,
+                    backgroundColor: colors.bg,
+                    borderWidth: 2,
+                    fill: true,
+                    pointRadius: 0,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: {
+                        ticks: { maxTicksLimit: 8, font: { size: 11 } },
+                        grid: { display: false }
+                    },
+                    y: {
+                        ticks: { font: { size: 11 } },
+                        grid: { color: 'rgba(0,0,0,0.05)' }
+                    }
+                }
+            }
+        });
+    });
+</script>
+</body>
+</html>

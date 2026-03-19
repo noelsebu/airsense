@@ -77,6 +77,14 @@ class AlertService(
     }
 
     @Transactional
+    fun toggleRule(id: UUID) {
+        val rule = alertRuleRepository.findById(id)
+            .orElseThrow { NoSuchElementException("Alert rule not found: $id") }
+        rule.enabled = !rule.enabled
+        alertRuleRepository.save(rule)
+    }
+
+    @Transactional
     fun deleteRule(id: UUID) = alertRuleRepository.deleteById(id)
 
     @Transactional
