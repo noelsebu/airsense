@@ -56,15 +56,56 @@ class AirSenseApiController(
 
     @GetMapping("/devices/{deviceId}/alerts")
     fun getDeviceAlerts(@PathVariable deviceId: UUID): List<AlertDto> =
-        alertService.getAlertsByDevice(deviceId)
+        alertService.getAlertsForDevice(deviceId)
 
     @GetMapping("/devices/{deviceId}/alert-rules")
     fun getAlertRules(@PathVariable deviceId: UUID): List<AlertRuleDto> =
-        alertService.getRulesByDevice(deviceId)
+        alertService.getRulesForDevice(deviceId)
+
+    @GetMapping("/locations/{locationId}/alerts")
+    fun getLocationAlerts(@PathVariable locationId: UUID): List<AlertDto> =
+        alertService.getUnacknowledgedForLocation(locationId)
+
+    @GetMapping("/alerts/count")
+    fun countUnacknowledged(): Map<String, Long> =
+        mapOf("unacknowledged" to alertService.countUnacknowledged())
 
     @PostMapping("/alerts/{alertId}/acknowledge")
     fun acknowledgeAlert(@PathVariable alertId: UUID): ResponseEntity<Void> {
-        alertService.acknowledge(alertId)
+        alertService.acknowledgeAlert(alertId)
         return ResponseEntity.ok().build()
+    }
+
+    // ── Alert Rules ──
+
+    @PostMapping("/devices/{deviceId}/alert-rules")
+    fun createAlertRule(
+        @PathVariable deviceId: UUID,
+        @RequestBody form: AlertRuleFormDto
+    ): ResponseEntity<AlertRuleDto> {
+        form.deviceId = deviceId
+        val rule = alertService.createRule(form)
+        return ResponseEntity.status(201).body(
+            AlertRuleDto(
+                id = rule.id!!,
+                deviceId = deviceId,
+                deviceSerial = rule.device.serialNumber,
+                sensorType = rule.sensorType,
+                threshold = rule.threshold,
+                enabled = rule.enabled
+            )
+        )
+    }
+
+    @PostMapping("/alert-rules/{id}/toggle")
+    fun toggleAlertRule(@PathVariable id: UUID): ResponseEntity<Void> {
+        alertService.toggleRule(id)
+        return ResponseEntity.ok().build()
+    }
+
+    @DeleteMapping("/alert-rules/{id}")
+    fun deleteAlertRule(@PathVariable id: UUID): ResponseEntity<Void> {
+        alertService.deleteRule(id)
+        return ResponseEntity.noContent().build()
     }
 }
