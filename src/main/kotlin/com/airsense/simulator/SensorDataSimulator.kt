@@ -10,9 +10,9 @@ import org.springframework.stereotype.Component
 import java.time.DayOfWeek
 import java.time.Instant
 import java.time.ZoneId
-import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.random.Random
+import java.util.Random as JavaRandom
 
 /**
  * Generates realistic sensor data that mimics real-world indoor air quality patterns:
@@ -33,6 +33,7 @@ class SensorDataSimulator(
     private val log = LoggerFactory.getLogger(SensorDataSimulator::class.java)
 
     private val deviceState = mutableMapOf<String, DeviceSimState>()
+    private val rng = JavaRandom()
 
     // Shared weather state — all devices in the same "region" see the same pressure front
     private var weatherPressure = 1013.0
@@ -107,11 +108,11 @@ class SensorDataSimulator(
         if (ticksSinceTrendChange >= trendDuration) {
             // Pick a new trend: slight bias toward returning to 1013 hPa
             val returnBias = (1013.0 - weatherPressure) * 0.01
-            weatherTrend = returnBias + Random.nextGaussian() * 0.3
+            weatherTrend = returnBias + rng.nextGaussian() * 0.3
             trendDuration = randomTrendDuration()
             ticksSinceTrendChange = 0
         }
-        weatherPressure += weatherTrend + Random.nextGaussian() * 0.1
+        weatherPressure += weatherTrend + rng.nextGaussian() * 0.1
         weatherPressure = weatherPressure.coerceIn(990.0, 1040.0)
     }
 
@@ -127,7 +128,7 @@ class SensorDataSimulator(
         // --- CO2: 400 ppm base + occupancy contribution ---
         val co2Target = 400.0 + (occupancy * 800.0) +
                 (if (isMeetingRoom) occupancy * 200.0 else 0.0) +
-                Random.nextGaussian() * 15.0
+                rng.nextGaussian() * 15.0
         state.co2 += (co2Target - state.co2) * 0.15
 
         // --- Radon: driven by pressure drops (low pressure → higher seepage) ---
@@ -137,7 +138,7 @@ class SensorDataSimulator(
         // Falling pressure trend amplifies radon further
         val trendEffect = if (weatherTrend < 0) -weatherTrend * 15.0 else 0.0
         val radonTarget = radonBase + pressureEffect + trendEffect
-        state.radon += (radonTarget - state.radon) * 0.05 + Random.nextGaussian() * 3.0
+        state.radon += (radonTarget - state.radon) * 0.05 + rng.nextGaussian() * 3.0
         // Occasional ventilation-driven spike (e.g., opening a basement door)
         if (Random.nextDouble() < 0.015) {
             state.radon += Random.nextDouble(15.0, 50.0)
@@ -146,31 +147,31 @@ class SensorDataSimulator(
         // --- Temperature: sinusoidal day/night cycle ---
         // Peak at ~15:00 (hourFrac=15), trough at ~05:00
         val tempBase = if (isServerRoom) 28.0 else 21.0 + sin((hourFrac - 5.0) * Math.PI / 12.0) * 2.5
-        state.temperature += (tempBase - state.temperature) * 0.1 + Random.nextGaussian() * 0.15
+        state.temperature += (tempBase - state.temperature) * 0.1 + rng.nextGaussian() * 0.15
 
         // --- Humidity: inversely correlated with temperature ---
-        val humTarget = 55.0 - (state.temperature - 21.0) * 3.0 + Random.nextGaussian() * 1.5
+        val humTarget = 55.0 - (state.temperature - 21.0) * 3.0 + rng.nextGaussian() * 1.5
         state.humidity += (humTarget - state.humidity) * 0.1
 
         // --- VOC: occupancy with lag + kitchen spikes ---
         val vocBase = 80.0 + occupancy * 300.0 +
                 (if (isKitchen && hour in 11..13) 200.0 else 0.0) +
                 (if (isKitchen && hour in 17..19) 250.0 else 0.0)
-        val vocTarget = vocBase + Random.nextGaussian() * 25.0
+        val vocTarget = vocBase + rng.nextGaussian() * 25.0
         state.voc += (vocTarget - state.voc) * 0.08
 
         // --- PM2.5: occupancy baseline + cooking/traffic spikes ---
         val pmBase = 5.0 + occupancy * 8.0 +
                 (if (isKitchen && hour in 11..13) 15.0 else 0.0) +
                 (if (isKitchen && hour in 17..19) 20.0 else 0.0)
-        val pmTarget = pmBase + Random.nextGaussian() * 1.5
+        val pmTarget = pmBase + rng.nextGaussian() * 1.5
         state.pm25 += (pmTarget - state.pm25) * 0.1
         if (Random.nextDouble() < 0.03) {
             state.pm25 += Random.nextDouble(8.0, 25.0)
         }
 
         // --- Pressure: tracks shared weather with per-device noise ---
-        state.pressure += (weatherPressure - state.pressure) * 0.3 + Random.nextGaussian() * 0.1
+        state.pressure += (weatherPressure - state.pressure) * 0.3 + rng.nextGaussian() * 0.1
     }
 
     /**

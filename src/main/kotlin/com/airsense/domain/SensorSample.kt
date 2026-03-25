@@ -35,19 +35,19 @@ class SensorSample(
     var pressure: Double? = null,
 
     // Computed ratings
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.STRING) @Column(name = "radon_rating")
     var radonRating: AirQualityRating? = null,
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.STRING) @Column(name = "co2_rating")
     var co2Rating: AirQualityRating? = null,
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.STRING) @Column(name = "voc_rating")
     var vocRating: AirQualityRating? = null,
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.STRING) @Column(name = "pm25_rating")
     var pm25Rating: AirQualityRating? = null,
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.STRING) @Column(name = "temperature_rating")
     var temperatureRating: AirQualityRating? = null,
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.STRING) @Column(name = "humidity_rating")
     var humidityRating: AirQualityRating? = null,
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.STRING) @Column(name = "pressure_rating")
     var pressureRating: AirQualityRating? = null
 ) {
     /**
