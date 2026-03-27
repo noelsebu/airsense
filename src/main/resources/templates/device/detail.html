@@ -207,7 +207,9 @@
                 <tr><th>Sensor</th><th>Device</th><th>Room</th><th>Value</th><th>Time</th><th></th></tr>
                 </thead>
                 <tbody>
-                <tr th:each="alert : ${alerts}" th:replace="~{fragments/components :: alertRow(${alert})}"></tr>
+                <th:block th:each="alert : ${alerts}">
+                    <tr th:replace="~{fragments/components :: alertRow(${alert})}"></tr>
+                </th:block>
                 </tbody>
             </table>
         </div>

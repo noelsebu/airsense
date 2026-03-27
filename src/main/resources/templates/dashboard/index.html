@@ -81,7 +81,9 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="alert : ${summary.recentAlerts}" th:replace="~{fragments/components :: alertRow(${alert})}"></tr>
+                    <th:block th:each="alert : ${summary.recentAlerts}">
+                        <tr th:replace="~{fragments/components :: alertRow(${alert})}"></tr>
+                    </th:block>
                 </tbody>
             </table>
         </div>
