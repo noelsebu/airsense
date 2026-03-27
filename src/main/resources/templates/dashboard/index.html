@@ -59,7 +59,7 @@
                             <span>
                                 <strong th:text="${loc.floors}">2</strong> floors
                             </span>
-                            <span th:text="${loc.buildingType.name().toLowerCase().capitalize()}">Office</span>
+                            <span th:text="${#strings.capitalize(loc.buildingType.name().toLowerCase())}">Office</span>
                         </div>
                     </div>
                 </div>
