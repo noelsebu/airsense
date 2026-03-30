@@ -1,0 +1,12 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "NIXPACKS",
+    "buildCommand": "./gradlew bootJar -x test"
+  },
+  "deploy": {
+    "startCommand": "java -Dspring.profiles.active=prod -jar build/libs/airsense-0.0.1-SNAPSHOT.jar",
+    "healthcheckPath": "/",
+    "restartPolicyType": "ON_FAILURE"
+  }
+}
