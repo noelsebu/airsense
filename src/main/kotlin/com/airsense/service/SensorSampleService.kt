@@ -65,16 +65,17 @@ class SensorSampleService(
             else -> "${hours}h"
         }
 
+        val row = if (result.size == 7) result else arrayOfNulls(7)
         return SampleAveragesDto(
             deviceId = deviceId,
             period = period,
-            radon = result[0] as? Double,
-            co2 = result[1] as? Double,
-            voc = result[2] as? Double,
-            pm25 = result[3] as? Double,
-            temperature = result[4] as? Double,
-            humidity = result[5] as? Double,
-            pressure = result[6] as? Double
+            radon = row[0] as? Double,
+            co2 = row[1] as? Double,
+            voc = row[2] as? Double,
+            pm25 = row[3] as? Double,
+            temperature = row[4] as? Double,
+            humidity = row[5] as? Double,
+            pressure = row[6] as? Double
         )
     }
 }
