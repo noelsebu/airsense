@@ -16,7 +16,7 @@
     <h3 class="mb-4">Add Device</h3>
 
     <form th:action="@{/devices}" method="post" th:object="${form}">
-        <input type="hidden" th:field="*{locationId}"/>
+        <input type="hidden" name="locationId" th:value="${locationId}"/>
 
         <div class="mb-3">
             <label class="form-label" for="serialNumber">Serial Number</label>

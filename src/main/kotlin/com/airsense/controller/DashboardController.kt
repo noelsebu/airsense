@@ -106,9 +106,10 @@ class DashboardController(
     }
 
     @PostMapping("/devices")
-    fun createDevice(@ModelAttribute form: DeviceFormDto): String {
-        val device = deviceService.create(form)
-        return "redirect:/locations/${form.locationId}"
+    fun createDevice(@ModelAttribute form: DeviceFormDto, @RequestParam locationId: UUID): String {
+        form.locationId = locationId
+        deviceService.create(form)
+        return "redirect:/locations/$locationId"
     }
 
     @PostMapping("/devices/{id}/delete")
