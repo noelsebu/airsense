@@ -42,7 +42,7 @@
     </td>
     <td>
         <form th:unless="${alert.acknowledged}" th:action="@{/alerts/{id}/acknowledge(id=${alert.id})}" method="post" class="d-inline">
-            <button type="submit" class="btn btn-sm btn-outline-success">Ack</button>
+            <button type="submit" class="btn btn-sm btn-outline-success">Acknowledge</button>
         </form>
         <span th:if="${alert.acknowledged}" class="text-muted small">Acknowledged</span>
     </td>

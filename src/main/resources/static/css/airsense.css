@@ -24,6 +24,17 @@
     --as-shadow: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
     --as-shadow-lg: 0 8px 24px rgba(0,0,0,0.35);
     --as-transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Override Bootstrap 5 CSS variables to prevent black-text-on-dark-bg */
+    --bs-body-bg: #0f1117;
+    --bs-body-color: #e4e5ea;
+    --bs-body-color-rgb: 228, 229, 234;
+    --bs-secondary-color: #8b8fa3;
+    --bs-border-color: #2a2e3d;
+    --bs-card-bg: #181b24;
+    --bs-card-border-color: #2a2e3d;
+    --bs-table-color: #e4e5ea;
+    --bs-table-border-color: #2a2e3d;
 }
 
 /* ── Base ── */
@@ -145,6 +156,7 @@ a:hover {
 .card.text-center .display-5 {
     font-weight: 800;
     letter-spacing: -1px;
+    color: var(--as-text);
 }
 
 .card.text-center h5.text-muted {
@@ -164,6 +176,7 @@ a:hover {
     font-weight: 700;
     font-size: 2rem;
     letter-spacing: -0.5px;
+    color: var(--as-text);
 }
 
 .sensor-card .card-subtitle {
