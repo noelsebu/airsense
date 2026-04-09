@@ -7,4 +7,4 @@ FROM eclipse-temurin:21-jre
 WORKDIR /app
 COPY --from=builder /app/build/libs/ ./build/libs/
 EXPOSE 8080
-ENTRYPOINT ["sh", "-c", "java -Dspring.profiles.active=prod -jar build/libs/*.jar"]
+ENTRYPOINT ["sh", "-c", "java -Xms64m -Xmx256m -XX:+UseContainerSupport -Dspring.profiles.active=prod -jar build/libs/*.jar"]
